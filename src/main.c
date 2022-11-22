@@ -236,28 +236,73 @@ int main(void)
 	T0TCR |= (1<<0); 						// Initial timer = On;
 	int start_hs = T0TC;
 	int start_vs = T0TC;
-	int hs_time = (96000000/30000/5);
-	int vs_time = (96000000/60/5);
+	//int hs_time = (96000000/30000/5);
+	//int vs_time = (96000000/60/5);
 	int hii = 1;
 
-//	while (1)
-//	{
-//		if (T0TC - start_hs > hs_time)
-//		{
-//			start_hs = T0TC;
-//			horizontal_sync();
-//		}
-//		if (T0TC - start_vs > vs_time)
-//		{
-//			vertical_sync();
-//		}
-//
-//		SET_R;
-//		SET_G;
-//		SET_B;
-//		CLR_R;
-//
-//	}
+
+	//horizontal_sync_pulse_time = 3.77 us = 377 clock cycles
+	int hs_time = 377;
+	int back_porch_time = 189;
+	int color_signal_time = 2517;
+	int front_porch_time = 94;
+
+	int start_write = 0;
+	int horizontal_lines = 0;
+	//back_porch_time = 1.89us = 189 clock cycles
+	//color_signal_time = 25.17us = 2517 clock cycles
+	//front_porch_time = 0.94us = 94 clock cycles
+	
+ // VGA CODE:
+ // VGA – 640 x 480
+ // if clock is 25 MHz - H Sync = 96 Clocks
+ // if clock is 25 MHz - H back porch = 48 Clocks
+ // if clock is 25 MHz - H front porch = 16 Clocks 
+ // Vertical Sync = 2 Horizontal Cycles
+ // Vertical Back Porch = 33 Horizontal Cycles
+ // Vertical Front Porch = 10 Horizontal Cycles
+	while (1)
+	{
+		// 377 Cycles H low Data low
+		if (T0TC - start_write < hs_time)
+		{
+			CLR_H;
+		}
+		// 189 Cycles H high, data low
+		else if (T0TC - start_write < back_porch_time) 
+		{
+			SET_H;
+		}
+		// 2517 Cycles, H high, data high
+		else if (T0TC - start_write < color_signal_time) 
+		{	
+			SET_R;
+			CLR_R;
+			SET_G;
+			CLR_G;
+			SET_B;
+			CLR_B;
+		}
+		// 94 Cycles, H high, data low
+		else if (T0TC - start_write < front_porch_time)
+		{
+			CLR_R;
+			CLR_G;
+			CLR_B;
+		}
+		// Reset
+		else
+		{
+			start_write = T0TC;
+			horizontal_lines++;
+		}
+
+		if (horizontal_lines - start_vs < 11);
+		{
+			CLR_V;
+		}
+		else if (horizontal_lines - start_vs < )
+	}
 	while (1)
 	{
 		// Assign note values to channels
