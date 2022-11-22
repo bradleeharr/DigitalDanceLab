@@ -79,7 +79,7 @@
 #define C6 		 29
 
 // Logic of waiting
-#define CLKRATIO 96/4
+#define CLKRATIO 96
 
 #define PINSEL1   	(*(volatile unsigned int *) 0x4002C004)
 #define PINMODE3   	(*(volatile unsigned int *) 0x4002C04C)

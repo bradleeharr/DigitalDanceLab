@@ -14,25 +14,13 @@
 
 #include "bradam_utils.h"
 #include "clock_config.h"
+#include "vga_interrupt.h"
 
-#define PCLKSEL (*(volatile unsigned int *) 0x400FC1A8)
-
+#define PCLKSEL0 (*(volatile unsigned int *) 0x400FC1A8)
+#define ICER0 	 (*(volatile unsigned int *) 0xE000E180)
 int sinetable[]={0,6,13,19,25,31,38,44,50,56,63,69,75,81,88,94,100,106,112,118,124,130,137,143,149,155,161,167,172,178,184,190,196,202,207,213,219,225,230,236,241,247,252,258,263,269,274,279,284,290,295,300,305,310,315,320,325,330,334,339,344,348,353,358,362,366,371,375,379,384,388,392,396,400,404,407,411,415,419,422,426,429,433,436,439,442,445,449,452,454,457,460,463,465,468,471,473,475,478,480,482,484,486,488,490,492,493,495,497,498,500,501,502,503,504,505,506,507,508,509,510,510,511,511,511,512,512,512,512,512,512,512,511,511,511,510,510,509,508,507,506,505,504,503,502,501,500,498,497,495,493,492,490,488,486,484,482,480,478,475,473,471,468,465,463,460,457,454,452,449,445,442,439,436,433,429,426,422,419,415,411,407,404,400,396,392,388,384,379,375,371,366,362,358,353,348,344,339,334,330,325,320,315,310,305,300,295,290,284,279,274,269,263,258,252,247,241,236,230,225,219,213,207,202,196,190,184,178,172,167,161,155,149,143,137,130,124,118,112,106,100,94,88,81,75,69,63,56,50,44,38,31,25,19,13,6,0,-6,-13,-19,-25,-31,-38,-44,-50,-56,-63,-69,-75,-81,-88,-94,-100,-106,-112,-118,-124,-130,-137,-143,-149,-155,-161,-167,-172,-178,-184,-190,-196,-202,-207,-213,-219,-225,-230,-236,-241,-247,-252,-258,-263,-269,-274,-279,-284,-290,-295,-300,-305,-310,-315,-320,-325,-330,-334,-339,-344,-348,-353,-358,-362,-366,-371,-375,-379,-384,-388,-392,-396,-400,-404,-407,-411,-415,-419,-422,-426,-429,-433,-436,-439,-442,-445,-449,-452,-454,-457,-460,-463,-465,-468,-471,-473,-475,-478,-480,-482,-484,-486,-488,-490,-492,-493,-495,-497,-498,-500,-501,-502,-503,-504,-505,-506,-507,-508,-509,-510,-510,-511,-511,-511,-512,-512,-512,-512,-512,-512,-512,-511,-511,-511,-510,-510,-509,-508,-507,-506,-505,-504,-503,-502,-501,-500,-498,-497,-495,-493,-492,-490,-488,-486,-484,-482,-480,-478,-475,-473,-471,-468,-465,-463,-460,-457,-454,-452,-449,-445,-442,-439,-436,-433,-429,-426,-422,-419,-415,-411,-407,-404,-400,-396,-392,-388,-384,-379,-375,-371,-366,-362,-358,-353,-348,-344,-339,-334,-330,-325,-320,-315,-310,-305,-300,-295,-290,-284,-279,-274,-269,-263,-258,-252,-247,-241,-236,-230,-225,-219,-213,-207,-202,-196,-190,-184,-178,-172,-167,-161,-155,-149,-143,-137,-130,-124,-118,-112,-106,-100,-94,-88,-81,-75,-69,-63,-56,-50,-44,-38,-31,-25,-19,-13,-6};
 
-#define SET_R 	(FIO2SET = (1<<11))
-#define CLR_R 	(FIO2CLR = (1<<11))
 
-#define SET_G 	(FIO2SET = (1<<8))
-#define CLR_G 	(FIO2CLR = (1<<8))
-
-#define SET_B 	(FIO2SET = (1<<6))
-#define CLR_B 	(FIO2CLR = (1<<6))
-
-#define SET_H 	(FIO2SET = (1<<4))
-#define CLR_H 	(FIO2CLR = (1<<4))
-
-#define SET_V 	(FIO2SET = (1<<1))
-#define CLR_V 	(FIO2CLR = (1<<1))
 
 void setup() {
 	// Pin 18 - P0.26 - Bits 21:20 - Function When 10 = AOUT
@@ -62,33 +50,8 @@ void setup() {
 	FIO2DIR |= (1<<4);	    // 46: Horiz Sync
 	FIO2DIR |= (1<<1);		// 43: Vert Sync
 
-}
+	ICER0 = (1<<1); // Disable Interrupts -> To be enabled later when initalizing interrupts
 
-void vertical_sync()
-{
-	CLR_V;
-	wait_us(1);
-	SET_V;
-}
-
-void horizontal_sync()
-{
-	CLR_H;
-	SET_H;
-}
-
-void vga()
-{
-	vertical_sync();
-	for (int j = 0; j < 480*3; j++)
-	{
-		for (int i = 0; i < 640/5; i++)
-		{
-				SET_R;
-				SET_G;
-		}
-		horizontal_sync();
-	}
 }
 
 int get_start_sw() { return ((FIO1PIN >> 31) & 1); }
@@ -112,6 +75,7 @@ int half_notes_square[] = {G3,G3,G3,G3,G3,G3,G3,G3};
 //int sixteenth_notes_square[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29};
 
 int numbeats = 400;
+
 int channel1_note[] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
 								100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
 								100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
@@ -172,6 +136,73 @@ int channel2_note[] = {   Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,  G2, D2, G3, D2,   
 						  A2,Eb2,  A3,Eb2,   A2,Eb2, A3,Eb2,  A2,Eb2,  A3,Eb2,   A2,Eb2, A3,Eb2,
 						  Eb2,Bb2,Eb3,Bb2,   Eb2,Bb2,Eb3,Bb2};
 
+#define horizontal_sync_cycles 380
+#define back_porch_cycles 180
+#define color_signal_cycles 2517
+#define front_porch_cycles 94
+volatile int sync_state;
+volatile int horizontal_lines;
+volatile int random;
+int red = 1;
+int green = 0;
+int blue = 0;
+void HSyncInterruptInitialize(void)
+{
+ CLR_H;
+ T0MR0 = T0TC + horizontal_sync_cycles; // interrupt after horizontal sync time
+ T0IR = (1<<0); 						// clear old MR0 match events
+ T0MCR |= (1<<0); 						// interrupt on MR0 match
+ T0TCR = 1; 							// make sure timer enabled
+ ISER0 = (1<<1); 						// enable Timer0 interrupts
+}
+
+void TIMER0_IRQHandler(void)
+{
+	// Case: End of Horizontal Sync
+	if (sync_state == 0 && ((T0IR>>0) & 1))
+	{  // check for MR0 event
+		T0MR0 = T0TC + 100; //back_porch_cycles; // next interrupt after back porch sync
+		T0IR = (1<<0); // clear MR0 event
+		SET_H; // Do whatever you need for this interrupt
+	}
+	// Case: End of Back Porch
+	else if (sync_state == 1 && ((T0IR>>0) & 1))
+	{
+		T0MR0 = T0TC + 2265; //color_signal_cycles;
+		T0IR = (1<<0); // clear MR0 event
+		// Do whatever you want for this interrupt
+		red ? SET_G : CLR_G;
+		green ? SET_R : CLR_R;
+		blue ? SET_B : CLR_B;
+	}
+	else if (sync_state == 2 && ((T0IR>>0) & 1))
+	{
+		T0MR0 = T0TC + 85; //front_porch_cycles; // next interrupt after front porch cycle
+		T0IR = (1<<0); // clear MR0 event
+		CLR_R;
+		CLR_G;
+		CLR_B;
+	}
+	else if (sync_state == 3 && ((T0IR>>0) & 1))
+	{
+		T0MR0 = T0TC + 342;  //horizontal_sync_cycles;
+		T0IR = (1<<0);
+		CLR_H;
+		horizontal_lines = (horizontal_lines + 1) % 525;
+	}
+	if(horizontal_lines < 2)
+	{
+		CLR_V;
+	}
+	// Back Porch
+	else if (horizontal_lines < 32)
+	{
+		SET_V;
+	}
+	sync_state = (sync_state + 1) % 4;
+}
+
+
 // After, start ascending arpeggios
 // TODO: Finish ADSR envelope
 // TODO: Fix sine wave frequency problems
@@ -229,80 +260,19 @@ int main(void)
     int noise_level = 0;
     int noise_out = 0;
     int noise_decay = 0;
-	setup();
 
+	setup();
 	init_clock();
 
-	T0TCR |= (1<<0); 						// Initial timer = On;
-	int start_hs = T0TC;
-	int start_vs = T0TC;
-	//int hs_time = (96000000/30000/5);
-	//int vs_time = (96000000/60/5);
-	int hii = 1;
+	int start_vsync = T0TC;
+	int start_wait = T0TC;
+	int vsync_time = 96000000/60;
+	int wait_time = 63;
 
+	T0TCR |= (1<<0);
+	PCLKSEL0 |= (1<<2);
 
-	//horizontal_sync_pulse_time = 3.77 us = 377 clock cycles
-	int hs_time = 377;
-	int back_porch_time = 189;
-	int color_signal_time = 2517;
-	int front_porch_time = 94;
-
-	int start_write = 0;
-	int horizontal_lines = 0;
-	//back_porch_time = 1.89us = 189 clock cycles
-	//color_signal_time = 25.17us = 2517 clock cycles
-	//front_porch_time = 0.94us = 94 clock cycles
-	
- // VGA CODE:
- // VGA – 640 x 480
- // if clock is 25 MHz - H Sync = 96 Clocks
- // if clock is 25 MHz - H back porch = 48 Clocks
- // if clock is 25 MHz - H front porch = 16 Clocks 
- // Vertical Sync = 2 Horizontal Cycles
- // Vertical Back Porch = 33 Horizontal Cycles
- // Vertical Front Porch = 10 Horizontal Cycles
-	while (1)
-	{
-		// 377 Cycles H low Data low
-		if (T0TC - start_write < hs_time)
-		{
-			CLR_H;
-		}
-		// 189 Cycles H high, data low
-		else if (T0TC - start_write < back_porch_time) 
-		{
-			SET_H;
-		}
-		// 2517 Cycles, H high, data high
-		else if (T0TC - start_write < color_signal_time) 
-		{	
-			SET_R;
-			CLR_R;
-			SET_G;
-			CLR_G;
-			SET_B;
-			CLR_B;
-		}
-		// 94 Cycles, H high, data low
-		else if (T0TC - start_write < front_porch_time)
-		{
-			CLR_R;
-			CLR_G;
-			CLR_B;
-		}
-		// Reset
-		else
-		{
-			start_write = T0TC;
-			horizontal_lines++;
-		}
-
-		if (horizontal_lines - start_vs < 11);
-		{
-			CLR_V;
-		}
-		else if (horizontal_lines - start_vs < )
-	}
+	HSyncInterruptInitialize();
 	while (1)
 	{
 		// Assign note values to channels
@@ -315,6 +285,18 @@ int main(void)
 		{
 			T0TCR ^= (1<<0);   // start timer ;  XOR flips bits
 			sixteenth_beat = 0; // Resets the song
+
+
+			if (red) {
+				red = 0; green = 1; blue = 0;
+			}
+			else if (green) {
+				red = 0; green = 0; blue = 1;
+			}
+			else if (blue) {
+				red = 1; green = 0; blue = 0;
+			}
+			T0TCR ^= (1<<0);
 		}
 		last_start_sw = get_start_sw();
 
@@ -359,7 +341,7 @@ int main(void)
 			if (T0TC - start_quarter > sixteenth_wait*4 && sixteenth_beat > 80)
 			{
 			start_quarter = T0TC;
-			noise_level = 100;
+			noise_level = 50;
 			}
 			// Every 16 sixteenths, the half note switches value
 			if (T0TC - start_half > sixteenth_wait*16)
