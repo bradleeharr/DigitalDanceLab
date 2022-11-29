@@ -26,7 +26,7 @@ void init_clock() {
 
 	CLKSRCSEL = 0; 						// Step 4: Write to Clock Source Selection Control register to change clock source
 
-	PLL0CFG = 119; 		                // Step 5: Write to PLL0CFG and make it effective with one feed sequence ; PLL0 must be disabled
+	PLL0CFG = 111; 		  //111              // Step 5: Write to PLL0CFG and make it effective with one feed sequence ; PLL0 must be disabled
 	PLL0FEED = 0xAA;
 	PLL0FEED = 0x55;
 
@@ -39,7 +39,7 @@ void init_clock() {
 
 	}
 
-	CCLKCFG = 9;						// Step 7: Change the CPU Clock Divider setting for the operation with PLL0
+	CCLKCFG = 8;	//8					// Step 7: Change the CPU Clock Divider setting for the operation with PLL0
 
 	PLL0CON |= (1<<1);					// Step 9: Connect PLL0 with one feed sequence
 	PLL0FEED = 0xAA;

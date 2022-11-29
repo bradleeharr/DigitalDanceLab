@@ -1,6 +1,6 @@
 /*
 ===============================================================================
- Name        : Lab5.c
+ Name        : main.c
  Author      : Bradlee Harrison & Adam Tran
  Version     :
  Copyright   : $(copyright)
@@ -18,6 +18,7 @@
 
 #define PCLKSEL0 (*(volatile unsigned int *) 0x400FC1A8)
 #define ICER0 	 (*(volatile unsigned int *) 0xE000E180)
+
 int sinetable[]={0,6,13,19,25,31,38,44,50,56,63,69,75,81,88,94,100,106,112,118,124,130,137,143,149,155,161,167,172,178,184,190,196,202,207,213,219,225,230,236,241,247,252,258,263,269,274,279,284,290,295,300,305,310,315,320,325,330,334,339,344,348,353,358,362,366,371,375,379,384,388,392,396,400,404,407,411,415,419,422,426,429,433,436,439,442,445,449,452,454,457,460,463,465,468,471,473,475,478,480,482,484,486,488,490,492,493,495,497,498,500,501,502,503,504,505,506,507,508,509,510,510,511,511,511,512,512,512,512,512,512,512,511,511,511,510,510,509,508,507,506,505,504,503,502,501,500,498,497,495,493,492,490,488,486,484,482,480,478,475,473,471,468,465,463,460,457,454,452,449,445,442,439,436,433,429,426,422,419,415,411,407,404,400,396,392,388,384,379,375,371,366,362,358,353,348,344,339,334,330,325,320,315,310,305,300,295,290,284,279,274,269,263,258,252,247,241,236,230,225,219,213,207,202,196,190,184,178,172,167,161,155,149,143,137,130,124,118,112,106,100,94,88,81,75,69,63,56,50,44,38,31,25,19,13,6,0,-6,-13,-19,-25,-31,-38,-44,-50,-56,-63,-69,-75,-81,-88,-94,-100,-106,-112,-118,-124,-130,-137,-143,-149,-155,-161,-167,-172,-178,-184,-190,-196,-202,-207,-213,-219,-225,-230,-236,-241,-247,-252,-258,-263,-269,-274,-279,-284,-290,-295,-300,-305,-310,-315,-320,-325,-330,-334,-339,-344,-348,-353,-358,-362,-366,-371,-375,-379,-384,-388,-392,-396,-400,-404,-407,-411,-415,-419,-422,-426,-429,-433,-436,-439,-442,-445,-449,-452,-454,-457,-460,-463,-465,-468,-471,-473,-475,-478,-480,-482,-484,-486,-488,-490,-492,-493,-495,-497,-498,-500,-501,-502,-503,-504,-505,-506,-507,-508,-509,-510,-510,-511,-511,-511,-512,-512,-512,-512,-512,-512,-512,-511,-511,-511,-510,-510,-509,-508,-507,-506,-505,-504,-503,-502,-501,-500,-498,-497,-495,-493,-492,-490,-488,-486,-484,-482,-480,-478,-475,-473,-471,-468,-465,-463,-460,-457,-454,-452,-449,-445,-442,-439,-436,-433,-429,-426,-422,-419,-415,-411,-407,-404,-400,-396,-392,-388,-384,-379,-375,-371,-366,-362,-358,-353,-348,-344,-339,-334,-330,-325,-320,-315,-310,-305,-300,-295,-290,-284,-279,-274,-269,-263,-258,-252,-247,-241,-236,-230,-225,-219,-213,-207,-202,-196,-190,-184,-178,-172,-167,-161,-155,-149,-143,-137,-130,-124,-118,-112,-106,-100,-94,-88,-81,-75,-69,-63,-56,-50,-44,-38,-31,-25,-19,-13,-6};
 
 
@@ -136,70 +137,191 @@ int channel2_note[] = {   Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,  G2, D2, G3, D2,   
 						  A2,Eb2,  A3,Eb2,   A2,Eb2, A3,Eb2,  A2,Eb2,  A3,Eb2,   A2,Eb2, A3,Eb2,
 						  Eb2,Bb2,Eb3,Bb2,   Eb2,Bb2,Eb3,Bb2};
 
-#define horizontal_sync_cycles 380
-#define back_porch_cycles 180
-#define color_signal_cycles 2517
-#define front_porch_cycles 94
+int horizontal_sync_cycles = 380 - 24;
+int back_porch_cycles = 180 - 20;
+int color_signal_cycles = 2517 - 8;
+int front_porch_cycles = 94 - 16;
+int write_cycle = 119 - 12; // 21 pixels per row
+
 volatile int sync_state;
 volatile int horizontal_lines;
 volatile int random;
-int red = 1;
+int red = 0;
 int green = 0;
 int blue = 0;
+
 void HSyncInterruptInitialize(void)
 {
- CLR_H;
- T0MR0 = T0TC + horizontal_sync_cycles; // interrupt after horizontal sync time
- T0IR = (1<<0); 						// clear old MR0 match events
- T0MCR |= (1<<0); 						// interrupt on MR0 match
- T0TCR = 1; 							// make sure timer enabled
- ISER0 = (1<<1); 						// enable Timer0 interrupts
+	CLR_H;									// Clear everything
+	T0MR0 = T0TC + horizontal_sync_cycles;  // interrupt after horizontal sync time
+	T0IR = (1<<0); 							// clear old MR0 match events
+	T0MCR |= (1<<0); 						// interrupt on MR0 match
+	T0TCR = 1; 								// make sure timer enabled
+	ISER0 = (1<<1); 						// enable Timer0 interrupts
 }
+
+//void PixelWriteInterruptInitialize(void)
+//{
+//	T0MR1 = T0TC + 32;			// Interrupt after 32 cycles (320ns)
+//	T0IR = (1<<1);				// Clear old MR1 match events
+//	T0MCR |= (1<<1);			// Interrupt on MR1 match
+//}
+
+void PixelWriteInterruptStop(void)
+{
+	CLR_R;
+	CLR_G;
+	CLR_B;
+	T0MCR &= ~(1<<1); 			// disable MR1 event
+	T0IR = (1<<1);   			// clear MR1 event
+}
+
+volatile int x = 0;
+volatile int y = 0;
+volatile int pixel;
+
+volatile int vpos = 0;
 
 void TIMER0_IRQHandler(void)
 {
+
 	// Case: End of Horizontal Sync
-	if (sync_state == 0 && ((T0IR>>0) & 1))
+	if (sync_state == 0)
 	{  // check for MR0 event
-		T0MR0 = T0TC + 100; //back_porch_cycles; // next interrupt after back porch sync
+		T0MR0 = T0TC + back_porch_cycles; //back_porch_cycles; // next interrupt after back porch sync
 		T0IR = (1<<0); // clear MR0 event
 		SET_H; // Do whatever you need for this interrupt
 	}
-	// Case: End of Back Porch
-	else if (sync_state == 1 && ((T0IR>>0) & 1))
+	// Case: End of Back Porch -> Where we write pixels
+	else if (sync_state == 1)
 	{
-		T0MR0 = T0TC + 2265; //color_signal_cycles;
+		T0MR0 = T0TC + write_cycle; // color_signal_cycles; //color_signal_cycles;
 		T0IR = (1<<0); // clear MR0 event
-		// Do whatever you want for this interrupt
-		red ? SET_G : CLR_G;
-		green ? SET_R : CLR_R;
-		blue ? SET_B : CLR_B;
+		// DO whatever you want for this interrupt
+		//(x%2 == 1) ? (SET_B) : (CLR_B);
+		//x++;
 	}
-	else if (sync_state == 2 && ((T0IR>>0) & 1))
+	// Case: Write a Pixel (After Back Porch, Before Front Porch)
+	else if (sync_state < 13)
 	{
-		T0MR0 = T0TC + 85; //front_porch_cycles; // next interrupt after front porch cycle
+		T0MR0 = T0TC + write_cycle;
+		T0IR = (1<<0);
+		vpos = (vpos + 1) % 480;
+		if ((sync_state == 2) || (sync_state == 10))
+		{
+			if ((horizontal_lines > 100 + vpos) && (horizontal_lines < 300 + vpos))
+			{
+				SET_R;
+				CLR_G;
+				CLR_B;
+			}
+			else
+			{
+				CLR_R;
+				CLR_G;
+				CLR_B;
+			}
+		}
+		else if (sync_state == 3 || sync_state == 11)
+		{
+			if ((horizontal_lines > 200) && (horizontal_lines < 275))
+			{
+				SET_R;
+				SET_G;
+				CLR_B;
+			}
+			else
+			{
+				CLR_R;
+				CLR_G;
+				CLR_B;
+			}
+		}
+		else if (sync_state == 4 || sync_state == 12)
+		{
+			CLR_R;
+			SET_G;
+			CLR_B;
+
+		}
+		else if (sync_state == 5)
+		{
+			CLR_R;
+			SET_G;
+			SET_B;
+		}
+		else if (sync_state == 6)
+		{
+			CLR_R;
+			SET_B;
+			CLR_G;
+		}
+		else if (sync_state == 7)
+		{
+			if ((horizontal_lines > 300) && (horizontal_lines < 350))
+			{
+				SET_R;
+				CLR_G;
+				SET_B;
+			}
+			else
+			{
+				CLR_R;
+				CLR_G;
+				CLR_B;
+			}
+		}
+		else if (sync_state == 8)
+		{
+			SET_R;
+			SET_G;
+			SET_B;
+		}
+		else
+		{
+			CLR_R;
+			CLR_G;
+			CLR_B;
+		}
+	}
+	// Case: End of Writing Pixels
+	else if (sync_state == 13)
+	{
+		T0MR0 = T0TC + front_porch_cycles; //front_porch_cycles; // next interrupt after front porch cycle
 		T0IR = (1<<0); // clear MR0 event
+		// DO whatever you want for this interrupt
 		CLR_R;
 		CLR_G;
 		CLR_B;
 	}
-	else if (sync_state == 3 && ((T0IR>>0) & 1))
+	// Case: End of Front Porch
+	else if (sync_state == 14)
 	{
-		T0MR0 = T0TC + 342;  //horizontal_sync_cycles;
+		T0MR0 = T0TC + horizontal_sync_cycles;  //horizontal_sync_cycles;
 		T0IR = (1<<0);
 		CLR_H;
 		horizontal_lines = (horizontal_lines + 1) % 525;
+		if (horizontal_lines == 0)
+		{
+			CLR_V;
+		}
+		else if (horizontal_lines == 2)
+		{
+			SET_V;
+		}
+		else if (horizontal_lines == 33) //2+31)
+		{
+			// Video gets put out
+		}
+		else if (horizontal_lines == 513) // 33 + 480)
+		{
+			// Video stops getting put out
+			CLR_R;
+			CLR_G;
+			CLR_B;
+		}
 	}
-	if(horizontal_lines < 2)
-	{
-		CLR_V;
-	}
-	// Back Porch
-	else if (horizontal_lines < 32)
-	{
-		SET_V;
-	}
-	sync_state = (sync_state + 1) % 4;
+	sync_state = (sync_state + 1) % 15;
 }
 
 
@@ -212,13 +334,14 @@ void TIMER0_IRQHandler(void)
 // TODO: Setup Serial Dance Pad Input
 int main(void)
 {
+
 	int max_vout_1 = 0x02F;
 	int max_vout_2 = 0x05F;
 	int last_start_sw = 0;
 	int last_sw1 = 0;
 	int last_sw2 = 0;
 
-	int tempo = 140;
+	int tempo = 90;
 	int sixteenth_wait = 1000000*CLKRATIO/((tempo*4)/60);
 	int note = 1;
 	int half_note = 1;
@@ -255,8 +378,7 @@ int main(void)
 
     int sineindex = 0;
     int lfsr = 0xACE1;
-
-    int volume = 25; // percent, 100% is normal volume
+    int volume = 10; // percent, 100% is normal volume
     int noise_level = 0;
     int noise_out = 0;
     int noise_decay = 0;
@@ -264,21 +386,24 @@ int main(void)
 	setup();
 	init_clock();
 
-	int start_vsync = T0TC;
-	int start_wait = T0TC;
-	int vsync_time = 96000000/60;
-	int wait_time = 63;
+	int start_line_write = 0;
 
 	T0TCR |= (1<<0);
 	PCLKSEL0 |= (1<<2);
 
-	HSyncInterruptInitialize();
+	int line_time = 100000000/30000;
+
+	int x_val = 0;
+	int y_val = 0;
+	//HSyncInterruptInitialize();
+
 	while (1)
 	{
 		// Assign note values to channels
 		sixteenth_timeout = get_time_count(note);
 		ch2_timeout = get_time_count(channel_two_note);
         sinechange = get_sine_change(half_note);
+
 
 		// Check If Start Button Pushed
 		if (last_start_sw == 0 && get_start_sw() == 1) // rising edge
@@ -304,6 +429,7 @@ int main(void)
 		if (last_sw1 == 0 && get_sw1() == 1) // rising edge
 		{
 			if (volume > 0) volume -= 2;
+			if (volume < 0) volume = 0;
 			noise_level = 0;
 			//tempo > 5? tempo -= 5 : 0;
 			//sixteenth_wait = 1000000*CLKRATIO/((tempo*4)/60);
@@ -313,7 +439,7 @@ int main(void)
 		// Check if sw2 pushed
 		if (last_sw2 == 0 && get_sw2() == 1) // rising edge
 		{
-			if (volume < 100) volume += 2;
+			if (volume < 30) volume += 2;
 			//tempo < 200? tempo += 5 : 0;
 			//sixteenth_wait = 1000000*CLKRATIO/((tempo*4)/60);
 		}
@@ -401,12 +527,6 @@ int main(void)
 		total_out > 1023? total_out = 1023 : 0;
 		DACR = ((total_out) << 6) | (1<<16);
 
-
-		// Attack
-		/*if (sixteenth_note_vout > 0 && T0TC - start_sixteenth_attack > sixteenth_wait/100 &&
-		{
-			start_sixteenth_attack = T0TC;
-		}*/
 		// Decay
 		if (sixteenth_note_vout > 0 && T0TC - start_sixteenth_decay > sixteenth_wait/35)
 		{
@@ -416,18 +536,6 @@ int main(void)
 			half_note_adiv *= 1.001;
 			noise_level > 0 ? noise_level -= 5 : 0;
 		}
-
-		// Sustain
-		/* if (sixteenth_note_vout > 0 && T0TC start_sixteenth_sustain > sixteenth_wait/100)
-		{
-			start_sixteenth_sustain = T0TC;
-		} */
-		// Release
-		/* if (sixteenth_note_vout > 0 && T0TC start_sixteenth_release > sixteenth_wait/100)
-		{
-			start_sixteenth_release = T0TC;
-		} */
-
 
 	}
 }

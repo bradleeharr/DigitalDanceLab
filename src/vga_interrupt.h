@@ -10,6 +10,7 @@
 
 #define PCONP (*(volatile unsigned int *) 0x400FC0C4)
 #define T0MR0 (*(volatile unsigned int *) 0x40004018)
+#define T0MR1 (*(volatile unsigned int *) 0x4000401C)
 #define T0MCR (*(volatile unsigned int *) 0x40004014)
 #define T0TCR (*(volatile unsigned int *) 0x40004004)
 #define T0IR  (*(volatile unsigned int *) 0x40004000)
@@ -29,10 +30,6 @@
 
 #define SET_V 	(FIO2SET = (1<<1))
 #define CLR_V 	(FIO2CLR = (1<<1))
-void TIMER0_IRQHandler(void);
 
-void TimerInterruptInitialize(void);
-
-void TIMER0_IRQHandler(void);
 
 #endif /* INTERRUPT_H_ */
