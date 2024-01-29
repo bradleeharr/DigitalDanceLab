@@ -8,6 +8,6 @@ Creating an Arcade-style Dance Rhythm Game using a [PlayStation 2 Dance Pad](htt
 
 <p align="center">
   
-  <img src="https://github.com/bradleeharr/DigitalDanceLab/assets/56418392/1f0d91a1-6eb1-4725-b649-fd7549d10e63">
-  <img src="https://github.com/bradleeharr/DigitalDanceLab/assets/56418392/b15303d7-8b6a-40c3-94e5-78663d6ddfee">
+  <img src="https://github.com/bradleeharr/DigitalDanceLab/assets/56418392/1f0d91a1-6eb1-4725-b649-fd7549d10e63" style="max-width:400px; width: 400px; max-height: 300px; height: 300px;">
+  <img src="https://github.com/bradleeharr/DigitalDanceLab/assets/56418392/b15303d7-8b6a-40c3-94e5-78663d6ddfee" style="max-width:400px; width: 400px; max-height: 300px; height: 300px;">
 </p>
