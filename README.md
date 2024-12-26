@@ -8,10 +8,16 @@ Creating an Arcade-style Dance Rhythm Game using a [PlayStation 2 Dance Pad](htt
 
 <p align="center">
   
-  <img src="https://github.com/bradleeharr/DigitalDanceLab/assets/56418392/1f0d91a1-6eb1-4725-b649-fd7549d10e63" style="max-width:300px; width: 300px; max-height: 250px; height: 250px;">
-  <img src="https://github.com/bradleeharr/DigitalDanceLab/assets/56418392/b15303d7-8b6a-40c3-94e5-78663d6ddfee" style="max-width:300px; width: 300px; max-height: 250px; height: 250px;">
-  <img src="https://github.com/bradleeharr/DigitalDanceLab/assets/56418392/f3e2fb80-be7e-4808-aeba-ae65b039f824" style="max-width:300px; width: 300px; max-height: 250px; height: 250px;">
+  <img src="https://github.com/bradleeharr/DigitalDanceLab/assets/56418392/1f0d91a1-6eb1-4725-b649-fd7549d10e63" style="max-width:220px; width: 220px; max-height: 250px; height: 250px;">
+  <img src="https://github.com/bradleeharr/DigitalDanceLab/assets/56418392/b15303d7-8b6a-40c3-94e5-78663d6ddfee" style="max-width:220px; width: 220px; max-height: 250px; height: 250px;">
+  <img src="https://github.com/bradleeharr/DigitalDanceLab/assets/56418392/f3e2fb80-be7e-4808-aeba-ae65b039f824" style="max-width:220px; width: 220px; max-height: 250px; height: 250px;">
 
+</p>
+
+The VGA pinout should be as follows:
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/93d0059a-2a8b-4721-b3f8-ac733c64ccbe" style="max-width:500px; width:500px; max-height: 250px; height: 250px;">
 </p>
 
 
