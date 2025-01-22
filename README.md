@@ -23,6 +23,7 @@ The VGA pinout should be as follows:
 
 
 # Display
+Below is an example of the display being used. It is fairly rough, but for the limited time we worked on this project, we were happy enough to be able to get the VGA display to work successfully.
 <p align="center"> 
   (Left) Test Mode Displaying Random Rectangles -- (Right) Game Mode Displaying Scrolling Rectangles, Indicating when to Step on Dance Pad
 </p>
