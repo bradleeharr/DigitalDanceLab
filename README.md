@@ -21,6 +21,9 @@ The VGA pinout should be as follows:
   <img src="https://github.com/user-attachments/assets/93d0059a-2a8b-4721-b3f8-ac733c64ccbe" style="max-width:500px; width:500px; max-height: 250px; height: 250px;">
 </p>
 
+# FPGA
+The De10-Lite FPGA is used functionally as a block of memory. The microprocessor makes actions to write to this block of memory, and the FPGA buffers this output into a suitable VGA format. 
+
 
 # Display
 Below is an example of the display being used. It is fairly rough, but for the limited time we worked on this project, we were happy enough to be able to get the VGA display to work successfully.
