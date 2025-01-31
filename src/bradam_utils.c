@@ -20,21 +20,20 @@ void wait(float sec)
 
 int get_time_count(int note)
 {	int timeout = 0;
-	switch(note)
-	{
-        case 100: timeout = 1000000000; break;
-
-        case   1: timeout = 3822.19164*4; break; // C1
-        case   2: timeout = 3405.29864*4; break; // D2
-        case  -2: timeout = 3213.36760925*4; break; // DS2 ; Eb2
-        case   3: timeout = 3033.7965*4; break; // E2
-        case   4: timeout = 2863.52443*4; break; // F2
-        case   5: timeout = 2551.02041*4; break; // G2
-        case  -5: timeout = 2407.31824747*4; break; // GS2 ; Ab2
-        case   6: timeout = 2272.72727*4; break; // A2
-        case  -6: timeout = 2145.002145*4; break; // AS2 ; Bb2
-        case   7: timeout = 2024.78335*2; break; // B2
-
+	switch(note) {
+	        case 100: timeout = 1000000000; break;
+	
+	        case   1: timeout = 3822.19164*4; break; // C1
+	        case   2: timeout = 3405.29864*4; break; // D2
+	        case  -2: timeout = 3213.36760925*4; break; // DS2 ; Eb2
+	        case   3: timeout = 3033.7965*4; break; // E2
+	        case   4: timeout = 2863.52443*4; break; // F2
+	        case   5: timeout = 2551.02041*4; break; // G2
+	        case  -5: timeout = 2407.31824747*4; break; // GS2 ; Ab2
+	        case   6: timeout = 2272.72727*4; break; // A2
+	        case  -6: timeout = 2145.002145*4; break; // AS2 ; Bb2
+	        case   7: timeout = 2024.78335*2; break; // B2
+	
 		case   8: timeout = 3822.19164*2; break; // C2
 		case  -8: timeout = 3607.76391*2; break; // CS2 ; Db2
 		case   9: timeout = 3405.29864*2; break; // D2
@@ -47,8 +46,8 @@ int get_time_count(int note)
 		case   13: timeout = 2272.72727*2; break; // A2
 		case  -13: timeout = 2145.002145*2; break; // AS2 ; Bb2
 		case   14: timeout = 2024.78335*2; break; // B2
-
-
+	
+	
 		case   15: timeout = 3822.19164; break; // C4
 		case  -15: timeout = 3607.5036075; break; // CS4 ; Db4
 		case   16: timeout = 3405.29864; break; // D4
@@ -74,7 +73,7 @@ int get_time_count(int note)
 		case  27: timeout = 2272.72727/2; break; // A4
 		case -27: timeout = 2145.002145/2; break; // AS4 ; Bb4
 		case  28: timeout = 2024.78335/2; break; // B4
-
+	
 		case  29: timeout = 3822.19164/4; break; // C5
 		case -29: timeout = 3607.5036075/4; break; // CS5 ; Db5
 		case  30: timeout = 3405.29864/4; break; // D5
@@ -87,9 +86,9 @@ int get_time_count(int note)
 		case  34: timeout = 2272.72727/4; break; // A5
 		case -34: timeout = 2145.002145/4; break; // AS5 ; Bb5
 		case  35: timeout = 2024.78335/4; break; // B5
-
+	
 		case 36: timeout = 3822.19164/8; break; // C6
-		}
+	}
 	return timeout*CLKRATIO;
 }
 
