@@ -5,7 +5,28 @@ We created an Arcade-style Dance Rhythm Game using a [PlayStation 2 Dance Pad](h
 
 # Audio
 Two songs are possible.
-There are several "instruments." we used square waves with varying sustain, delay, attack, and range to allow for different sound envelopes. We also made a percussive sound using a simple linear feedback shift register.
+There are several "instruments." we used square waves with varying sustain, delay, attack, and range to allow for different sound envelopes. We also made a percussive sound using a simple linear feedback shift register. 
+
+There are two channels of audio, a bass line and a melody line.
+Each channel is represented as an array of notes, as such:
+```c
+int channel2_note[] = {
+  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,  G2, D2, G3, D2,    G2, D2, G3, D2,
+  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,  G2, D2, G3, D2,    G2, D2, G3, D2,
+  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,
+  G2, D2, G3, D2,    G2, D2, G3, D2,  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,
+  G2, D2, G3, D2,    G2, D2, G3, D2,  C2, G2,  C3, G2,   C2, G2, C3, G2,
+  C2, G2, C3, G2,    C2, G2, C3, G2,  A2,Eb2,  A3,Eb2,   A2,Eb2, A3,Eb2,
+  A2,Eb2,  A3,Eb2,   A2,Eb2, A3,Eb2,  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,
+  G2, D2, G3, D2,    G2, D2, G3, D2,  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,
+  G2, D2, G3, D2,    G2, D2, G3, D2,  C2, G2, C3, G2,    C2, G2, C3, G2,
+  A2,Eb2,  A3,Eb2,   A2,Eb2, A3,Eb2,  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,
+  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,  G2, D2, G3, D2,    G2, D2, G3, D2,
+  G2, D2, G3, D2,    G2, D2, G3, D2,  C2, G2,  C3, G2,   C2, G2, C3, G2,
+  C2, G2, C3, G2,    C2, G2, C3, G2,  A2,Eb2,  A3,Eb2,   A2,Eb2, A3,Eb2,
+  A2,Eb2,  A3,Eb2,   A2,Eb2, A3,Eb2,  Eb2,Bb2,Eb3,Bb2,  Eb2,Bb2,Eb3,Bb2,
+};
+```
 
 # VGA
 A foundational part of this project was learning how to use the VGA standard. While initially seemingly complex, it is a fundamentally simple protocol.
