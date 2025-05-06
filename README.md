@@ -31,7 +31,8 @@ int channel2_note[] = {
 Notes, like `Eb2` and `Bb`, are defined using C #define statements as the specific frequency that each note corresponds to, like in <a href=https://upload.wikimedia.org/wikipedia/commons/a/ad/Piano_key_frequencies.png>this</a> table. 
 
 # VGA
-A foundational part of this project was learning how to use the VGA standard. While initially seemingly complex, it is a fundamentally simple protocol.
+A foundational part of this project was learning how to use the VGA standard. While initially seemingly complex, it is a fundamentally simple protocol. There are two lines of data that are used for syncrhonization: a "Vertical Sync" and a "Horizontal" Sync. The horizontal sync triggers once **for every (horizontal) line**. Then, after the horizontal sync has triggered (the height of the screen, in pixels) times, the vertical sync should trigger once **for every frame**. This means for each frame, the vertical sync will trigger once and exactly once.
+
 <p align="center"> (Left) VGA Horizontal Sync -- (Middle) VGA Color Data Line -- (Right) VGA Vertical Sync </p> 
 
 <p align="center">
