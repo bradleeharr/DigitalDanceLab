@@ -49,6 +49,8 @@ The VGA pinout should be as follows:
   <img src="https://github.com/user-attachments/assets/93d0059a-2a8b-4721-b3f8-ac733c64ccbe" style="max-width:500px; width:500px; max-height: 250px; height: 250px;">
 </p>
 
+A good explanation of VGA timing is in this StackExchange post: https://electronics.stackexchange.com/questions/228825/programming-pattern-to-generate-vga-signal-with-micro-controller
+
 # FPGA
 The De10-Lite FPGA is used functionally as a block of memory. The microprocessor makes actions to write to this block of memory, and the FPGA buffers this output into a suitable VGA format. 
 
