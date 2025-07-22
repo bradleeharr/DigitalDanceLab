@@ -1,6 +1,5 @@
 # DDL
-Final Project for ECE 4723 - Digital Design Lab
-
+Final Project for **ECE 4723 - Digital Design Lab**
 We created an Arcade-style Dance Rhythm Game using a [PlayStation 2 Dance Pad](https://www.amazon.com/Dance-Revolution-Regular-Playstation2-Playstation-2/dp/B000GF7KAW) for player input, a [LPC1769 MBed](https://www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-arm-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1769FBD100) for game logic, and using a [DE-10Lite FPGA](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=1021) to output VGA visuals.  There are two songs playable. Each song is stored as an array of notes in memory. Using input from the dance pad, we allow a player to adjust the tempo and volume of the output music as well as detect the different steps input for scoring for the game. 
 
 # Audio
